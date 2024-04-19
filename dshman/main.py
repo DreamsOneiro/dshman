@@ -17,7 +17,7 @@ if __name__ == '__main__':
         format.print_title()
         if data.DATA:
             for script in data.DATA:
-                data.DATA[script].print_item()
+                format.print_item(data.DATA[script])
 
     elif command.if_help():
         command.parser.print_help()
