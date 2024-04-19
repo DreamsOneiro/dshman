@@ -42,7 +42,7 @@ class Commands(cli_args):
 
     def check_no_args(self):
         if not (self.args.command or self.args.list or self.args.add or self.args.name or self.args.info or self.args.delete):
-            print('Welcome to Dreams Script Manager (V4.0)')
+            print('Welcome to Dreams Script Manager (V4.1)')
             sys.exit(0)
 
     def if_list(self):
