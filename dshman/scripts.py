@@ -9,9 +9,6 @@ class Scripts(TableFormat):
         self.info = info
         self.status = status
 
-    def print_item(self):
-        print(f'{self.format}'.format(f'{self.name}', f'{self.status}', f'{self.info}', f'{self.fileDIR}'))
-
     def launch(self):
         if (os.path.isfile(self.fileDIR)) and (self.status == 'enabled'):
             subprocess.Popen(self.fileDIR, shell=False, stdin=None, stdout=None, stderr=None)
