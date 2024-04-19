@@ -1,0 +1,213 @@
+#!/usr/bin/python
+import os, argparse, subprocess, sys, pickle
+"""
+Define CLI input using argparse
+"""
+parser = argparse.ArgumentParser()
+parser.add_argument('command', help='Insert command', nargs='*')
+parser.add_argument('-a', '--add', metavar='DIR', help='Add .sh file from directory')
+parser.add_argument('-n', '--name', help='Custom name for shell script')
+parser.add_argument('-i', '--info', help='(Optional)Add description for scripts')
+parser.add_argument('-d', '--delete', metavar='', help= '[Command]Delete scripts by name')
+parser.add_argument('--launch', help='[Command]Launch all enabled shell script', action='store_true')
+parser.add_argument('--enable', help='[Command]Enable dshman at launch or enable sh by name', action='store_true')
+parser.add_argument('--disable', help='[Command]Disable dshman at launch or disable sh by name', action='store_true')
+parser.add_argument('-l','--list', help='[Command]Show list of shell scripts', action='store_true')
+args = parser.parse_args()
+
+
+"""
+Class Object
+"""
+class scripts:
+    def __init__(self, dir: str, name: str, info, status: str):
+        self.dir = dir
+        self.name = name
+        self.info = info
+        self.status = status
+
+    def launch(self):
+        if os.path.isfile(self.dir):
+            subprocess.Popen(self.dir, shell=False, stdin=None, stdout=None, stderr=None)
+        else:
+            print(f'\033[1;31mFailed to launch {self.name}, could not find {self.dir}\033[0m')
+
+"""
+Functions
+"""
+def check_flags(*flags):
+    for flag in flags:
+        if flag:
+            return True
+    return False
+
+def printE(error:str):
+    print(f'\033[1;31mERROR: {error}\033[0m')
+    sys.exit(1)
+
+def check_dir():
+    global DIR
+    DIR = f'{os.path.expanduser("~")}/.dshman'
+    if not os.path.exists(DIR):
+        os.mkdir(DIR)
+    if not os.path.isfile(f'{DIR}/script.dat'):
+        script_dict = {}
+        with open(f'{DIR}/script.dat', 'wb') as f:
+            pickle.dump(script_dict, f)
+
+def load_data(dir):
+    with open(dir, 'rb') as f:
+        return(pickle.load(f))
+
+def write_data(data, dir):
+    with open(dir, 'wb') as f:
+        pickle.dump(data, f)
+
+def input_loop(message):
+    while True:
+        try:
+            CONFIRM = input(f'{message} [y/n]: ')
+            if CONFIRM == 'y':
+                return True
+            if CONFIRM == 'n':
+                return False
+        except KeyboardInterrupt:
+            print('\n')
+            return False
+
+def print_list(ListItem):
+    print('{:<10}{:<10}{:<50}{:<}'.format('Name:', 'Status:', 'Description', 'File:'))
+    for script_name in ListItem:
+        print('{:<10}{:<10}{:<50}{:<}'.format(f'{script_dict.get(script_name).name}', f'{script_dict.get(script_name).status}', f'{script_dict.get(script_name).info}', f'{script_dict.get(script_name).dir}'))
+
+"""
+Algorithm
+"""
+if (args.launch or args.enable or args.disable):
+    printE('[launch], [enable], and [disable] only work as command, please check your input or refer to [help]/[-h]')
+
+if args.command:
+    if check_flags(args.add, args.name, args.info, args.delete, args.list):
+        printE('Does not support use of both [Command] and [-flag], please check your input or refer to [help]/[-h]')
+
+if args.list:
+    if check_flags(args.add, args.name, args.info, args.delete):
+        printE('Too many flags, please check your input or refer to [help]/[-h]')
+
+    check_dir()
+    script_dict = load_data(f'{DIR}/script.dat')
+    print_list(script_dict)
+    sys.exit(0)
+
+if args.delete:
+    if check_flags(args.add, args.name, args.info):
+        printE('Too many flags, please check your input or refer to [help]/[-h]')
+    check_dir()
+    script_dict = load_data(f'{DIR}/script.dat')
+    if args.delete in script_dict:
+        if input_loop(f'Confirm delete: "{args.delete}"?'):
+            del script_dict[args.delete]
+            write_data(script_dict, f'{DIR}/script.dat')
+        else:
+            print('Delete aborted')
+        sys.exit(0)
+    else:
+        printE(f'Script name: "{args.delete}" not found')
+
+if args.add:
+    if args.name:
+        check_dir()
+        script_dict = load_data(f'{DIR}/script.dat')
+
+        if args.name in script_dict:
+            printE(f'Script with name {args.name} already exist in the list')
+
+        args.add = os.path.abspath(args.add)
+
+        if os.path.isfile(args.add):
+            script_dict[args.name] = scripts(args.add, args.name, args.info, 'enabled')
+            write_data(script_dict, f'{DIR}/script.dat')
+
+        if not os.path.isfile(args.add):
+            printE(f'File does not exist, please check directory "{args.add}"')
+        sys.exit(0)
+    else:
+        printE('Please use both -a and -n when adding new script')
+
+if args.command:
+    if len(args.command) > 2:
+        printE('Too many commands, please check your input or refer to [help]/[-h]')
+
+    if len(args.command) == 2:
+        if args.command[0] == 'delete':
+            check_dir()
+            script_dict = load_data(f'{DIR}/script.dat')
+            if args.command[1] in script_dict:
+                if input_loop(f'Confirm delete: "{args.command[1]}"?'):
+                    del script_dict[args.command[1]]
+                    write_data(script_dict, f'{DIR}/script.dat')
+                else:
+                    print('Delete aborted')
+                sys.exit(0)
+            else:
+                printE(f'Script name: "{args.command[1]}" not found')
+
+        if args.command[0] == 'enable':
+            check_dir()
+            script_dict = load_data(f'{DIR}/script.dat')
+            if args.command[1] in script_dict:
+                script_dict[args.command[1]].status = 'enabled'
+                write_data(script_dict, f'{DIR}/script.dat')
+                print(f'{args.command[1]} is enabled')
+                sys.exit(0)
+
+        if args.command[0] == 'disable':
+            check_dir()
+            script_dict = load_data(f'{DIR}/script.dat')
+            if args.command[1] in script_dict:
+                script_dict[args.command[1]].status = 'disabled'
+                write_data(script_dict, f'{DIR}/script.dat')
+                print(f'{args.command[1]} is disabled')
+                sys.exit(0)
+
+    if len(args.command) != 1:
+        printE('Too many commands, please check your input or refer to [help]/[-h]')
+
+    if args.command[0] == 'list':
+        check_dir()
+        script_dict = load_data(f'{DIR}/script.dat')
+        print_list(script_dict)
+        sys.exit(0)
+
+    if args.command[0] == 'launch':
+        check_dir()
+        script_dict = load_data(f'{DIR}/script.dat')
+        for script in script_dict:
+            if script_dict[script].status == 'enabled':
+                script_dict[script].launch()
+        sys.exit(0)
+
+    if args.command[0] == 'enable':
+        DESK_FILE = f'{os.path.expanduser("~")}/.config/autostart/dshman.desktop'
+
+        with open(DESK_FILE, 'w') as f:
+            f.write('[Desktop Entry]\n')
+            f.write('Encoding=UTF-8\n')
+            f.write('Type=Application\n')
+            f.write('Terminal=false\n')
+            f.write(f'Exec=/usr/local/bin/dshman launch\n')
+            f.write('Name=Dreams Shell Manager\n')
+        sys.exit(0)
+
+    if args.command[0] == 'disable':
+        DESK_FILE = f'{os.path.expanduser("~")}/.config/autostart/dshman.desktop'
+
+        if os.path.isfile(DESK_FILE):
+            os.remove(DESK_FILE)
+        else:
+            print('dshman already disabled at launch')
+        sys.exit(0)
+
+else:
+    print('Welcome to Dreams Shell Manager (v3.0)')
+    sys.exit(0)

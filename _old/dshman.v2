@@ -1,0 +1,213 @@
+#!/usr/bin/python
+import os, argparse, subprocess, sys
+"""
+Define CLI input using argparse
+"""
+parser = argparse.ArgumentParser()
+parser.add_argument('command', help='Insert command', nargs='*')
+parser.add_argument('-a', '--add', metavar='DIR', help='Add .sh file from directory')
+parser.add_argument('-n', '--name', help='Custom name for shell script')
+parser.add_argument('-i', '--info', help='(Optional)Add description for scripts')
+parser.add_argument('-d', '--delete', metavar='', help= '[Command]Delete scripts by name')
+parser.add_argument('--launch', help='[Command]Launch all enabled shell script', action='store_true')
+parser.add_argument('--enable', help='[Command]Enable dshman at launch or enable sh by name', action='store_true')
+parser.add_argument('--disable', help='[Command]Disable dshman at launch or disable sh by name', action='store_true')
+parser.add_argument('-l','--list', help='[Command]Show list of shell scripts', action='store_true')
+args = parser.parse_args()
+
+"""
+Basic Functions
+"""
+def check_flag(*flags):
+    for flag in flags:
+        if flag:
+            return True
+    return False
+def printE(error):
+    print(f'\033[1;31mERROR: {error}')
+    sys.exit(1)
+def sortSecond(val):
+    return val[1]
+def replace_list(list, index, var): #Replace specific item in list
+    new_list = list
+    new_list[index] = var
+    return new_list
+def check_name(list, name):
+    for x in list:
+        if x[1] == name:
+            return True
+    return False
+
+"""
+Functions
+"""
+def check_dir():
+    dir = f'{os.path.expanduser("~")}/.dshman'
+    if not os.path.exists(dir):
+        os.mkdir(dir)
+    if not os.path.isfile(f'{dir}/shscripts'):
+        with open(f'{dir}/shscripts', 'x') as f:
+            pass
+
+def list_script(): #List all added scripts
+    shells = f'{os.path.expanduser("~")}/.dshman/shscripts'
+    with open(shells, 'r') as f:
+        list = [(shell.replace('\n', '')).split(';') for shell in f]
+    list.sort(key = sortSecond)
+    print('{:<10}{:<9}{:<50}{:<}'.format('Name:', 'Status:', 'Description:', 'File:'))
+    for x in list:
+        print('{:<10}{:<9}{:<50}{:<}'.format(f'{x[1]}', f'{x[3]}', f'{x[2]}', f'{x[0]}'))
+    sys.exit(0)
+
+def add_script(shell, name, info): #Add new script to list
+    shells = f'{os.path.expanduser("~")}/.dshman/shscripts'
+    with open(shells, 'r') as f:
+        for x in f:
+            if x.split(';')[1] == name: #Check and return error if name already exist
+                printE(f'Shell script with name: "{name}" already exist')
+    with open(shells, 'a') as f:
+        f.write(f'{shell};{name};{info};active\n')
+    sys.exit(0)
+
+def delete_script(name):
+    shells = f'{os.path.expanduser("~")}/.dshman/shscripts'   
+    with open(shells, 'r') as f:
+        list = [(shell.replace('\n', '')).split(';') for shell in f] #Load the script list
+
+    REF_LIST = list.copy()
+    list = [shell for shell in list if shell[1] != name] #Manipulate the script list
+    if list == REF_LIST: #Check for changes
+        printE(f'Script with name "{name}" not found')
+
+    try:
+        while True: #Confirm deletion
+            VERIFY = input(f'Are you sure you want to delete {name} [y/n]: ') 
+            if VERIFY == ('y' or 'Y'):
+                break
+            if VERIFY == ('n' or 'N'):
+                print('Delete aborted')
+                sys.exit(0)
+    except KeyboardInterrupt:
+        print('\nAborted')
+        sys.exit(0)
+
+    with open(shells, 'w') as f: #Write new list to file if all checks passed
+        for x in list:
+            f.write(f'{";".join(x)}\n')
+    print('Script successfully deleted')
+    sys.exit(0)
+
+def replace_script(name, var, val):
+    shells = f'{os.path.expanduser("~")}/.dshman/shscripts'   
+    with open(shells, 'r') as f:
+        list = [(shell.replace('\n', '')).split(';') for shell in f]
+
+    if not check_name(list, name): #Check if name exist
+        printE(f'Script with name "{name}" not found')
+    list = [shell if shell[1] != name else replace_list(shell, val, var) for shell in list]
+
+    with open(shells, 'w') as f:
+        for x in list:
+            f.write(f'{";".join(x)}\n')
+
+def launch_script():
+    shells = f'{os.path.expanduser("~")}/.dshman/shscripts'   
+    with open(shells, 'r') as f:
+        list = [(shell.replace('\n', '')).split(';') for shell in f]
+    ecode = 0
+    for x in list:
+        if os.path.isfile(x[0]):
+            if x[3] == 'active': 
+                subprocess.Popen(x[0], shell=False, stdin=None, stdout=None, stderr=None)
+        if not os.path.isfile(x[0]):
+            print(f'\033[1;31mERROR: Could not find "{x[1]}" in file directory "{x[0]}"')
+            ecode=1
+    exit(ecode)
+    
+"""
+Statement checks to trigger actions
+"""
+flag_error = 'Too many flags, please check your input or refer to [help]/[-h]'
+
+if (args.launch or args.enable or args.disable):
+    printE('[launch], [enable], and [disable] only work as command, please check your input or refer to [help]/[-h]')
+
+if (args.command and check_flag(args.add, args.name, args.info, args.delete, args.list)): #Return error if both [command] and [-flags] detected
+        printE('Does not support use of both [Command] and [-flag], please check your input or refer to [help]/[-h]')
+
+if args.list:
+    if check_flag(args.add, args.name, args.info, args.delete):
+        printE(flag_error)
+    check_dir()
+    list_script()
+
+if args.delete:
+    if check_flag(args.add, args.name, args.info):
+        printE(flag_error)
+    check_dir()
+    delete_script(args.delete)
+
+if (bool(args.add) ^ bool(args.name)): #Return error if both -a and -n not detected
+    printE('Both -a and -n are mandatory when adding new scripts')
+
+if (args.add and args.name):
+    args.add = os.path.abspath(args.add)
+    if not os.path.isfile(args.add):
+        printE(f'{args.add.rsplit("/",1)[1]} is not a file')
+    check_dir()
+    add_script(args.add, args.name, args.info)
+
+if args.command:
+    if len(args.command) > 2:
+        printE('Too many commands, please check your input or refer to [help]/[-h]')
+    if len(args.command) == 2:
+        if args.command[0] == 'delete':
+            check_dir()
+            delete_script(args.command[1])
+        if args.command[0] == 'enable':
+            check_dir()
+            replace_script(args.command[1], 'active', 3)
+            print(f'{args.command[1]} now active')
+            sys.exit(0)
+        if args.command[0] == 'disable':
+            check_dir()
+            replace_script(args.command[1], 'off', 3)
+            print(f'{args.command[1]} now inactive')
+            sys.exit(0)
+        else:
+            printE('Too many commands, please check your input or refer to [help]/[-h]')
+
+if len(args.command) == 0:
+    print('Welcome to Dreams Shell Manager (V2.0)')
+    sys.exit(0)
+
+if args.command[0] == 'list':
+    check_dir()
+    list_script()
+
+if args.command[0] == 'launch':
+    check_dir()
+    launch_script()
+
+DESK_FILE = f'{os.path.expanduser("~")}/.config/autostart/dshman.desktop'
+
+if args.command[0] == 'enable':
+    with open(DESK_FILE, 'w') as f:
+        f.write('[Desktop Entry]\n')
+        f.write('Encoding=UTF-8\n')
+        f.write('Type=Application\n')
+        f.write('Terminal=false\n')
+        f.write(f'Exec=/usr/local/bin/dshman launch\n')
+        f.write('Name=Dreams Shell Manager\n')
+    sys.exit(0)
+
+if args.command[0] == 'disable':
+    if os.path.isfile(DESK_FILE):
+        os.remove(DESK_FILE)
+    else:
+        print('dshman already disabled at launch')
+    sys.exit(0)
+
+if args.command[0] == 'help':
+    parser.print_help()
+    sys.exit(0)

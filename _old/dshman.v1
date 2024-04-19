@@ -1,0 +1,199 @@
+#!/usr/bin/python
+
+import argparse, os, stat, subprocess, shutil
+
+parser = argparse.ArgumentParser()
+
+parser.add_argument('command', help='Insert command', nargs='*')
+parser.add_argument('-a', '--add', metavar='DIR', help='Add .sh file from directory')
+parser.add_argument('-n', '--name', help='Custom name for shell script')
+parser.add_argument('-i', '--info', help='(Optional)Add description fscript')
+#parser.add_argument('-p', '--priority', metavar='#', help='Set shell script priority')
+parser.add_argument('-d', '--delete', metavar='', help= '[Command]Delete scripts by name')
+parser.add_argument('--launch', help='[Command]Launch all enabled shell script', action='store_true')
+parser.add_argument('--enable', help='[Command]Enable dshman at launch or enable sh by name', action='store_true')
+parser.add_argument('--disable', help='[Command]Disable dshman at launch or disable sh by name', action='store_true')
+parser.add_argument('-l','--list', help='[Command]Show list of shell scripts', action='store_true')
+
+def check_flags(*flags):
+    for flag in flags:
+        if flag != None:
+            return True
+    return False 
+def print_error(error):
+    print(f'ERROR: {error}')
+    exit(1)
+def sortSecond(val):
+    return val[1]
+def write_desktop(dir):
+    f = open(f'{dir}/template.desktop', 'w')
+    f.write(f'[Desktop Entry]\nEncoding=UTF-8\nType=Application\nTerminal=false\nExec={dir}/exec_dsh.sh\nName=Dreams Shell Manager\n')
+    f.close()
+def write_shlaunch(dir):
+    f = open(f'{dir}/exec_dsh.sh', 'w')
+    f.write('#!/bin/bash\ndshman launch\n')
+    f.close()
+    os.chmod(f'{dir}/exec_dsh.sh', stat.S_IRWXU | stat.S_IRGRP | stat.S_IXGRP | stat.S_IXOTH)
+def check_dir():
+    dir = os.path.expanduser('~') + '/.dshman'
+    if not os.path.exists(dir):
+        os.mkdir(dir)
+        f = open(f'{dir}/shscripts', 'x')
+        f.close()
+        write_desktop(dir)
+        write_shlaunch(dir)
+    if not os.path.isfile(f'{dir}/shscripts'):
+        f = open(f'{dir}/shscripts', 'x')
+        f.close()
+    if not os.path.isfile(f'{dir}/exec_dsh.sh'):
+        write_shlaunch(dir)
+    if not os.path.isfile(f'{dir}/template.desktop'):
+        write_desktop(dir)
+def load_list():
+    dir = os.path.expanduser('~') + '/.dshman'
+    f = open(f'{dir}/shscripts', 'r')
+    result = []
+    for x in f:
+        x = x.rsplit(';')
+        x[3] = x[3].replace('\n', '')
+        x[2] = None if x[2] == 'None' else x[2]
+        result.append(x)
+    f.close()
+    return result
+def write_list(lists):
+    check_dir()
+    dir = os.path.expanduser('~') + '/.dshman'
+    f = open(f'{dir}/shscripts', 'w')
+    for x in lists:
+        x[2] = 'None' if x[2] == None else x[2]
+        f.write(';'.join(x) + '\n')
+    f.close()
+def print_list():
+    check_dir()
+    lists = load_list()
+    print('{:<10}{:<9}{:<50}{:<}'.format('Name:', 'Status:', 'Description:', 'File:'))
+    for x in lists:
+        print('{:<10}{:<9}{:<50}{:<}'.format(f'{x[1]}', f'{x[3]}', f'{x[2]}', f'{x[0]}'))
+    exit(0)
+def del_list(name):
+    check_dir()
+    lists = load_list()
+    for x in lists:
+        if name == x[1]:
+            del lists[lists.index(x)]
+            write_list(lists)
+            print(f'Successfully deleted script: "{x[1]}"')
+            exit(0)
+    print_error(f'There are not script name: "{name}" in the list')
+def status_list(name, status):
+    if not (status == 'enable' or status == 'disable'):
+        print_error(f'Unknown command {status}')
+    check_dir()
+    lists = load_list()
+    for x in lists:
+        status = 'active' if status == 'enable' else status
+        status = 'dead' if status == 'disable' else status
+        if name == x[1]:
+            if x[3] == status:
+                print(f'{x[1]} is already {x[3]}')
+                exit(0)
+            lists[lists.index(x)][3] = status
+            message = f'{x[1]} is now {x[3]}'
+            write_list(lists)
+            print(message)
+            exit(0)
+    print(f'{name} not found')
+    exit(0)
+def launch_scripts():
+    lists=load_list()
+    ecode=0
+    for x in lists:
+        if os.path.isfile(x[0]):
+            if x[3] == 'active': 
+                subprocess.Popen(x[0], shell=False, stdin=None, stdout=None, stderr=None)
+                print(x[1])
+        if not os.path.isfile(x[0]):
+            print(f'ERROR: Could not find "{x[1]}" in file directory "{x[0]}"')
+            ecode=1
+    exit(ecode)
+
+args = parser.parse_args()
+flags = [args.add, args.name, args.info, args.delete]
+home_dir = os.path.expanduser('~')
+
+#print(str(args)+'\n')
+
+if args.launch or args.enable or args.disable:
+    print_error('Please refer to help, --launch, --enable, and --disable only work as a command')
+if args.list:
+    if check_flags(*flags):
+        print_error('--list/-l does not work with other flags')
+    if len(args.command) > 0:
+        print_error('--list/-l does not work with commands')
+    else:
+        print_list()
+if check_flags(args.delete):
+    if check_flags(*[args.add, args.name, args.info]):
+        print_error('Delete or -d does not works with other flags\nPlease refer to help or -h')
+    if len(args.command) != 0:
+        print_error('Delete or -d does not works with commands\nPlease refer to help or -h')
+    del_list(args.delete)
+if len(args.command) == 0:
+    if not check_flags(*flags):
+        print('Welcome to Dreams Shell Script Manager!\nUse help or -h for list of commands and flags')
+        exit(0)
+    else:
+        if not (check_flags(args.add) and check_flags(args.name)):
+            print_error('Both -a and -n are compulsory when adding new scripts')
+        check_dir()
+        if os.path.isfile(args.add):
+            args.add = os.path.abspath(args.add)
+            args.info = "None" if args.info == None else args.info
+            NEW_SCRIPT = [args.add, args.name, args.info, 'active']
+            FULL_LIST = load_list() 
+            for x in FULL_LIST:
+                if x[0] == NEW_SCRIPT[0]:
+                    print_error(f'The script {NEW_SCRIPT[0].rsplit("/", 1)[1]} already exist\nPlease use -l or list command')
+            FULL_LIST.append(NEW_SCRIPT)
+            FULL_LIST.sort(key=sortSecond)
+            write_list(FULL_LIST)
+            exit(0)
+        if not os.path.isfile(args.add):
+            print_error(f'{args.add} is not a file, or the file does not exist')
+if len(args.command) == 2:
+    if args.command[0] == 'delete':
+        del_list(str(args.command[1]))
+    if (args.command[0] == 'enable' or args.command[0] == 'disable'):
+        status_list(args.command[1], args.command[0])
+if len(args.command) > 1:
+    print_error('Too many commands, please check your input\nUse -h for help')
+if args.command[0] == 'help':
+    parser.print_help()
+    exit(0)
+if args.command[0] == 'list':
+    if check_flags(*flags):
+        print_error('list command does not work with flags')
+    else:
+        print_list()
+if args.command[0] == 'launch':
+    launch_scripts()
+if args.command[0] == 'enable':
+    check_dir()
+    if os.path.isfile(f'{home_dir}/.config/autostart/dshman.desktop'):
+        print('Shell Manager already enabled')
+        exit(0)
+    else:
+        shutil.copyfile(f'{home_dir}/.dshman/template.desktop', f'{home_dir}/.config/autostart/dshman.desktop')
+        print('Shell Manager enabled, shells will now start at launch')
+        exit(0)
+if args.command[0] == 'disable':
+    check_dir()
+    if not os.path.isfile(f'{home_dir}/.config/autostart/dshman.desktop'):
+        print('Shell Manager already disabled')
+        exit(0)
+    else:
+        os.remove(f'{home_dir}/.config/autostart/dshman.desktop')
+        print('Shell Manager is now disabled')
+        exit(0)
+else:
+    print_error('unknown command: ' + args.command[0])
