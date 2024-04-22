@@ -5,8 +5,7 @@ from data_handler import DataHandler
 from table_format import TableFormat
 
 if __name__ == '__main__':
-    #data = DataHandler(f'{os.path.expanduser("~")}/.dshman')
-    data = DataHandler(f'{os.path.expanduser("~")}/Programming/dshman/test')
+    data = DataHandler(f'{os.path.expanduser("~")}/.dshman')
     command = Commands()
     format = TableFormat()
 
