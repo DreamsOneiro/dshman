@@ -111,7 +111,6 @@ class Commands(cli_args):
         if self.args.change:
             return True
 
-
     """
     Other functions
     """
