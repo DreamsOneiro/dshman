@@ -93,6 +93,10 @@ class Commands(cli_args):
             if self.args.command[0].lower() == 'disable':
                 return True
 
+    def if_change(self):
+        if self.args.change:
+            return True
+
     def script_add(self):
         self.args.add = os.path.abspath(self.args.add)
         if os.path.isfile(self.args.add):
