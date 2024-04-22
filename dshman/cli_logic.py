@@ -8,7 +8,10 @@ class Commands(cli_args):
     def printError(self, message):
         print(f'\033[1;31m{message}\033[0m')
         sys.exit(1)
-        
+
+    """
+    Main logic check
+    """
     def check_non_command(self):
         if (self.args.launch or self.args.enable or self.args.disable):
             self.printError('[launch], [enable], and [disable] will not work as flag, please use [Command]')
@@ -41,10 +44,21 @@ class Commands(cli_args):
                     self.printError('Unkown command, please check your input. Do you mean "[delete] [name]"')
 
     def check_no_args(self):
-        if not (self.args.command or self.args.list or self.args.add or self.args.name or self.args.info or self.args.delete):
+        if not (self.args.command or self.args.list or self.args.add or self.args.name or self.args.info or self.args.delete or self.args.change):
             print('Welcome to Dreams Script Manager (V4.0)')
             sys.exit(0)
 
+    def main_check(self):
+        self.check_non_command()
+        self.check_flag_command()
+        self.check_flag()
+        self.check_add_logic()
+        self.check_command()
+        self.check_no_args()
+
+    """
+    If statement
+    """
     def if_list(self):
         if self.args.list:
             return True
@@ -97,6 +111,10 @@ class Commands(cli_args):
         if self.args.change:
             return True
 
+
+    """
+    Other functions
+    """
     def script_add(self):
         self.args.add = os.path.abspath(self.args.add)
         if os.path.isfile(self.args.add):
@@ -115,16 +133,11 @@ class Commands(cli_args):
         if self.args.command:
             return self.args.command[1]
 
+    def script_change(self):
+        return self.args.change
+
     def unknown_command(self):
         self.printError('Unknown command, please check your input')
-
-    def main_check(self):
-        self.check_non_command()
-        self.check_flag_command()
-        self.check_flag()
-        self.check_add_logic()
-        self.check_command()
-        self.check_no_args()
 
 if __name__ == '__main__':
     command = commands()
