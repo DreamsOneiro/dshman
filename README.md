@@ -9,3 +9,4 @@ Features
 2) Launch script at startup or manually launch from CLI
 3) Enable/Disable script from launching through dshman
 4) Add description to shell script for easier management
+5) Change added script's name and info
