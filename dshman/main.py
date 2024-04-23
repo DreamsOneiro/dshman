@@ -4,7 +4,7 @@ from cli_logic import Commands
 from data_handler import DataHandler
 from table_format import TableFormat
 
-if __name__ == '__main__':
+def main():
     data = DataHandler(f'{os.path.expanduser("~")}/.dshman')
     command = Commands()
     format = TableFormat()
@@ -61,5 +61,6 @@ if __name__ == '__main__':
 
     else:
         command.unknown_command()
-    
-    sys.exit(0)
+
+if __name__ == '__main__':
+    main()
