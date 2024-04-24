@@ -2,8 +2,9 @@ import argparse
 
 class cli_args():
     def __init__(self):
-        self.parser = argparse.ArgumentParser()
+        self.parser = argparse.ArgumentParser(prog = 'Dreams Shell Manager')
         self.parser.add_argument('command', help='Insert command', nargs='*')
+        self.parser.add_argument('--version', action='version', version = '%(prog)s (v4.2)')
         self.parser.add_argument('-a', '--add', metavar='DIR', help='Add .sh file from directory')
         self.parser.add_argument('-n', '--name', help='Custom name for shell script')
         self.parser.add_argument('-i', '--info', help='(Optional)Add description for scripts')
