@@ -8,27 +8,27 @@ class DataHandler(Directory):
         Directory.__init__(self, DIR)
         self.data = {}
 
-    def load_data(self):
+    def load(self):
         if os.path.getsize(self.datfile) > 0:
             # Check to make sure file is not empty
             with open(self.datfile, 'rb') as f:
                 self.data = pickle.load(f)
             
-    def sort_data(self):
+    def sort(self):
         self.data = dict(sorted(self.data.items()))
 
-    def write_data(self):
-        self.sort_data()
+    def write(self):
+        self.sort()
         with open(self.datfile, 'wb') as f:
             pickle.dump(self.data, f)
 
-    def add_data(self, KEY, VALUE):
+    def add(self, KEY, VALUE):
         if KEY in self.data:
             print(f'\033[1;31mERROR: Script name: "{KEY}" alreay exist in list\033[0m')
             sys.exit(1)
         self.data[KEY] = VALUE
 
-    def delete_data(self, KEY):
+    def delete(self, KEY):
         if KEY in self.data:
             while True:
                 try:
@@ -44,7 +44,7 @@ class DataHandler(Directory):
         else:
             print(f'Script name: "{KEY}" not in list')
 
-    def change_data(self, NAME):
+    def change(self, NAME):
         if NAME in self.data:
             print('Leave empty for default')
 
@@ -82,10 +82,10 @@ class DataHandler(Directory):
 if __name__ == '__main__':
     test = DataHandler('/home/dreams/Programming/dshman/test')
     test.main()
-    test.load_data()
+    test.load()
     test_name = 'script1'
     print(test.DATA[test_name].name)
     print(test.DATA[test_name].info)
-    test.change_data(test_name)
+    test.change(test_name)
     print(test.DATA['script'].name)
     print(test.DATA['script'].info)

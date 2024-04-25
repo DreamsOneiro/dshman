@@ -14,7 +14,7 @@ def main():
     command.main_check()
     
     if command.list():
-        data.load_data()
+        data.load()
         format.print_title()
         if data.data:
             for script in data.data:
@@ -25,36 +25,36 @@ def main():
 
     elif command.add():
         new_script = Scripts(*command.script_add())
-        data.load_data()
-        data.add_data(new_script.name, new_script)
-        data.write_data()
+        data.load()
+        data.add(new_script.name, new_script)
+        data.write()
 
     elif command.delete():
-        data.load_data()
-        data.delete_data(command.script_delete())
-        data.write_data()
+        data.load()
+        data.delete(command.script_delete())
+        data.write()
 
     elif command.launch():
-        data.load_data()
+        data.load()
         for script in data.data:
             data.data[script].launch()
 
     elif command.enable():
-        data.load_data()
+        data.load()
         data.data[command.script_status()].status = 'enabled'
         print(f'{command.script_status()} is enabled')
-        data.write_data()
+        data.write()
 
     elif command.disable():
-        data.load_data()
+        data.load()
         data.data[command.script_status()].status = 'disabled'
         print(f'{command.script_status()} is disabled')
-        data.write_data()
+        data.write()
 
     elif command.change():
-        data.load_data()
-        data.change_data(command.script_change())
-        data.write_data()
+        data.load()
+        data.change(command.script_change())
+        data.write()
 
     elif command.enable_all():
         data.create_desk()
