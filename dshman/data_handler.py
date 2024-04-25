@@ -6,35 +6,35 @@ from directory import Directory
 class DataHandler(Directory):
     def __init__(self, DIR):
         Directory.__init__(self, DIR)
-        self.DATA = {}
+        self.data = {}
 
     def load_data(self):
         if os.path.getsize(self.DAT) > 0:
             # Check to make sure file is not empty
             with open(self.DAT, 'rb') as f:
-                self.DATA = pickle.load(f)
+                self.data = pickle.load(f)
             
     def sort_data(self):
-        self.DATA = dict(sorted(self.DATA.items()))
+        self.data = dict(sorted(self.DATA.items()))
 
     def write_data(self):
         self.sort_data()
         with open(self.DAT, 'wb') as f:
-            pickle.dump(self.DATA, f)
+            pickle.dump(self.data, f)
 
     def add_data(self, KEY, VALUE):
-        if KEY in self.DATA:
+        if KEY in self.data:
             print(f'\033[1;31mERROR: Script name: "{KEY}" alreay exist in list\033[0m')
             sys.exit(1)
-        self.DATA[KEY] = VALUE
+        self.data[KEY] = VALUE
 
     def delete_data(self, KEY):
-        if KEY in self.DATA:
+        if KEY in self.data:
             while True:
                 try:
                     CONFIRM = input(f'Confirm delete script {KEY}? [y/n]: ')
                     if CONFIRM == 'y':
-                        del self.DATA[KEY]
+                        del self.data[KEY]
                     elif CONFIRM == 'n':
                         print('Aborted')
                     break
@@ -45,19 +45,19 @@ class DataHandler(Directory):
             print(f'Script name: "{KEY}" not in list')
 
     def change_data(self, NAME):
-        if NAME in self.DATA:
+        if NAME in self.data:
             print('Leave empty for default')
 
             while True:
                 try:
-                    new_name = input(f'Please input new name [Default = "{self.DATA[NAME].name}"]: ')
-                    if new_name in self.DATA:
+                    new_name = input(f'Please input new name [Default = "{self.data[NAME].name}"]: ')
+                    if new_name in self.data:
                         print('Name already exist')
                     elif new_name == '':
                         new_name = NAME
                         break
                     else:
-                        self.DATA[NAME].name = new_name
+                        self.data[NAME].name = new_name
                         break
                 except KeyboardInterrupt:
                     print('\n')
@@ -66,14 +66,14 @@ class DataHandler(Directory):
             try:
                 new_info = input('Please input new info: ')
                 if new_info != '':
-                    self.DATA[NAME].info = new_info
+                    self.data[NAME].info = new_info
             except KeyboardInterrupt:
                 print('\n')
                 sys.exit(0)
 
             if not new_name is NAME:
-                self.DATA[new_name] = self.DATA[NAME]
-                del self.DATA[NAME]
+                self.data[new_name] = self.DATA[NAME]
+                del self.data[NAME]
 
         else:
             print(f'No script with name: "{NAME}"')

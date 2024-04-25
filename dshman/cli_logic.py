@@ -10,13 +10,14 @@ class Commands(CLIArgs):
         print(f'\033[1;31m{message}\033[0m')
         sys.exit(1)
 
-    """Main check
+    """Main checks
     Prevent user input error.
     """
     def check_non_command(self):
         if (self.args.launch 
                 or self.args.enable 
                 or self.args.disable):
+            # Prevent user from using some of the command as flag
             self.printError('[launch], [enable], and [disable] will not work as flag, please use [Command]')
 
     def check_flag_command(self):
@@ -25,6 +26,7 @@ class Commands(CLIArgs):
                     or self.args.name 
                     or self.args.info 
                     or self.args.list):
+                # Prevent user from using both command and flag
                 self.printError('Does not support use of both [Command] and [-flag], please check your input')
 
     def check_flag(self):
@@ -32,12 +34,13 @@ class Commands(CLIArgs):
                  bool(self.args.delete), 
                  bool(self.args.add or self.args.name or self.args.info))
         if not sum(flags) <= 1:
+            # A very specific Xor check
             self.printError('Too many flags, please check your input')
 
     def check_add_logic(self):
         if (bool(self.args.add) ^ 
             bool(self.args.name)):
-            # Xor check to make sure script given a name
+            # Xor check to make sure script is given a name
             self.printError('Both [-a] and [-n] are needed to add new script')
 
     def check_command(self):
@@ -80,7 +83,7 @@ class Commands(CLIArgs):
         self.check_command()
         self.check_no_args()
 
-    """If statement
+    """If statements
     Basic if statements to return True/False.
     """
     def if_list(self):
@@ -136,7 +139,7 @@ class Commands(CLIArgs):
             return True
 
     """Other functions
-    Other functions used to modify the dictionary.
+    Deliver data for dictionary modification
     """
     def script_add(self):
         self.args.add = os.path.abspath(self.args.add)

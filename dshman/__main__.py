@@ -15,9 +15,9 @@ def main():
     if command.if_list():
         data.load_data()
         format.print_title()
-        if data.DATA:
-            for script in data.DATA:
-                format.print_item(data.DATA[script])
+        if data.data:
+            for script in data.data:
+                format.print_item(data.data[script])
 
     elif command.if_help():
         command.parser.print_help()
@@ -35,17 +35,17 @@ def main():
 
     elif command.if_launch():
         data.load_data()
-        for script in data.DATA:
-            data.DATA[script].launch()
+        for script in data.data:
+            data.data[script].launch()
 
     elif command.if_enable():
         data.load_data()
-        data.DATA[command.script_enable_disable()].status = 'enabled'
+        data.data[command.script_enable_disable()].status = 'enabled'
         data.write_data()
 
     elif command.if_disable():
         data.load_data()
-        data.DATA[command.script_enable_disable()].status = 'disabled'
+        data.data[command.script_enable_disable()].status = 'disabled'
         data.write_data()
 
     elif command.if_change():
