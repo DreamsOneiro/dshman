@@ -158,7 +158,7 @@ class Commands(CLIArgs):
             if self.args.command[0].lower() == 'delete':
                 return self.args.command[1]
 
-    def script_enable_disable(self):
+    def script_status(self):
         if self.args.command:
             return self.args.command[1]
 

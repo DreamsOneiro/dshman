@@ -41,12 +41,14 @@ def main():
 
     elif command.enable():
         data.load_data()
-        data.data[command.script_enable_disable()].status = 'enabled'
+        data.data[command.script_status()].status = 'enabled'
+        print(f'{command.script_status()} is enabled')
         data.write_data()
 
     elif command.disable():
         data.load_data()
-        data.data[command.script_enable_disable()].status = 'disabled'
+        data.data[command.script_status()].status = 'disabled'
+        print(f'{command.script_status()} is disabled')
         data.write_data()
 
     elif command.change():
