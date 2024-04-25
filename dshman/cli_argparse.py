@@ -1,6 +1,6 @@
 import argparse
 
-class cli_args():
+class CLIArgs():
     def __init__(self):
         self.parser = argparse.ArgumentParser(prog = 'Dreams Shell Manager')
         self.parser.add_argument('command', help='Insert command', nargs='*')

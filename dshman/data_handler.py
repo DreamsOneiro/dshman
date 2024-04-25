@@ -1,13 +1,16 @@
-import pickle, os, sys
-from directory_manager import manageDIR
+import pickle
+import os
+import sys
+from directory import Directory
 
-class DataHandler(manageDIR):
+class DataHandler(Directory):
     def __init__(self, DIR):
-        manageDIR.__init__(self, DIR)
+        Directory.__init__(self, DIR)
         self.DATA = {}
 
     def load_data(self):
         if os.path.getsize(self.DAT) > 0:
+            # Check to make sure file is not empty
             with open(self.DAT, 'rb') as f:
                 self.DATA = pickle.load(f)
             
