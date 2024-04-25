@@ -1,4 +1,5 @@
-import os, sys
+import os
+import sys
 from scripts import Scripts
 from cli_logic import Commands
 from data_handler import DataHandler
