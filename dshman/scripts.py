@@ -1,9 +1,7 @@
 import os, subprocess
-from table_format import TableFormat
 
-class Scripts(TableFormat):
+class Scripts:
     def __init__(self, fileDIR, name, info, status):
-        TableFormat.__init__(self)
         self.fileDIR = fileDIR
         self.name = name
         self.info = info
