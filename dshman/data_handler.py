@@ -9,9 +9,9 @@ class DataHandler(Directory):
         self.data = {}
 
     def load_data(self):
-        if os.path.getsize(self.DAT) > 0:
+        if os.path.getsize(self.datfile) > 0:
             # Check to make sure file is not empty
-            with open(self.DAT, 'rb') as f:
+            with open(self.datfile, 'rb') as f:
                 self.data = pickle.load(f)
             
     def sort_data(self):
@@ -19,7 +19,7 @@ class DataHandler(Directory):
 
     def write_data(self):
         self.sort_data()
-        with open(self.DAT, 'wb') as f:
+        with open(self.datfile, 'wb') as f:
             pickle.dump(self.data, f)
 
     def add_data(self, KEY, VALUE):

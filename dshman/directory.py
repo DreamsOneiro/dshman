@@ -3,8 +3,8 @@ import sys
 
 class Directory:
     def __init__(self, DIR):
-        self.DIR = DIR
-        self.DAT = f'{DIR}/script.dat'
+        self.dir = DIR
+        self.datfile = f'{DIR}/script.dat'
 
     def check_kde_desktop(self):
         try:
@@ -16,12 +16,12 @@ class Directory:
             print('Error occured, check $XDG_CURRENT_DESKTOP')
 
     def check_dir(self):
-        if not os.path.exists(self.DIR):
-            os.mkdir(self.DIR)
+        if not os.path.exists(self.dir):
+            os.mkdir(self.dir)
 
     def check_dat(self):
-        if not os.path.isfile(self.DAT):
-            with open(self.DAT, 'x') as f:
+        if not os.path.isfile(self.datfile):
+            with open(self.datfile, 'x') as f:
                 pass
 
     def create_desk(self):
