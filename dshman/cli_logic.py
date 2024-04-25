@@ -1,7 +1,8 @@
-import sys, os
-from cli_argparse import cli_args
+import sys
+import os
+from cli_argparse import CLIArgs
 
-class Commands(cli_args):
+class Commands(CLIArgs):
     def debug(self):
         print(self.args)
 
@@ -9,42 +10,65 @@ class Commands(cli_args):
         print(f'\033[1;31m{message}\033[0m')
         sys.exit(1)
 
-    """
-    Main logic check
+    """Main check
+    Prevent user input error.
     """
     def check_non_command(self):
-        if (self.args.launch or self.args.enable or self.args.disable):
+        if (self.args.launch 
+                or self.args.enable 
+                or self.args.disable):
             self.printError('[launch], [enable], and [disable] will not work as flag, please use [Command]')
 
     def check_flag_command(self):
-        if self.args.command and (self.args.add or self.args.name or self.args.info or self.args.list):
-            self.printError('Does not support use of both [Command] and [-flag], please check your input')
+        if self.args.command:
+            if (self.args.add 
+                    or self.args.name 
+                    or self.args.info 
+                    or self.args.list):
+                self.printError('Does not support use of both [Command] and [-flag], please check your input')
 
     def check_flag(self):
-        flags = (self.args.list, bool(self.args.delete), bool(self.args.add or self.args.name or self.args.info))
-        if not (sum(flags) == 1 or sum(flags) == 0):
+        flags = (bool(self.args.list), 
+                 bool(self.args.delete), 
+                 bool(self.args.add or self.args.name or self.args.info))
+        if not sum(flags) <= 1:
             self.printError('Too many flags, please check your input')
 
     def check_add_logic(self):
-        if (bool(self.args.add) ^ bool(self.args.name)):
+        if (bool(self.args.add) ^ 
+            bool(self.args.name)):
+            # Xor check to make sure script given a name
             self.printError('Both [-a] and [-n] are needed to add new script')
 
     def check_command(self):
         def command_error():
             self.printError('Too many [commands], please check your input')
+
         if self.args.command:
             if len(self.args.command) > 2:
                 command_error()
+
             elif len(self.args.command) == 2:
-                commands = {'delete', 'enable', 'disable'}
+                commands = ('delete',
+                            'enable', 
+                            'disable')
                 if not self.args.command[0].lower() in commands:
+                # Return error if the command is not in the tuple above
                     command_error()
+
             elif len(self.args.command) == 1:
                 if self.args.command[0].lower() == 'delete':
                     self.printError('Unkown command, please check your input. Do you mean "[delete] [name]"')
 
     def check_no_args(self):
-        if not (self.args.command or self.args.list or self.args.add or self.args.name or self.args.info or self.args.delete or self.args.change):
+        if not (self.args.command 
+                or self.args.list 
+                or self.args.add 
+                or self.args.name 
+                or self.args.info 
+                or self.args.delete 
+                or self.args.change):
+            # Print welcome script when no input detected
             print('Welcome to Dreams Script Manager (v4.2)')
             sys.exit(0)
 
@@ -56,8 +80,8 @@ class Commands(cli_args):
         self.check_command()
         self.check_no_args()
 
-    """
-    If statement
+    """If statement
+    Basic if statements to return True/False.
     """
     def if_list(self):
         if self.args.list:
@@ -111,13 +135,16 @@ class Commands(cli_args):
         if self.args.change:
             return True
 
-    """
-    Other functions
+    """Other functions
+    Other functions used to modify the dictionary.
     """
     def script_add(self):
         self.args.add = os.path.abspath(self.args.add)
         if os.path.isfile(self.args.add):
-            return  self.args.add, self.args.name, self.args.info, "enabled"
+            return  (self.args.add, 
+                     self.args.name, 
+                     self.args.info, 
+                     "enabled")
         else:
             self.printError(f'File not found, please check directory "{self.args.add}"')
 

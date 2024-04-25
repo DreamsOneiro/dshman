@@ -10,6 +10,7 @@ class Scripts:
     def launch(self):
         if (os.path.isfile(self.fileDIR)) and (self.status == 'enabled'):
             subprocess.Popen(self.fileDIR, shell=False, stdin=None, stdout=None, stderr=None)
+
         if not os.path.isfile(self.fileDIR):
             print(f'\033[1;31mFailed to launch {self.name}, could not find {self.fileDIR}\033[0m')
 

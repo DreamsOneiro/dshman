@@ -1,6 +1,7 @@
-import os, sys
+import os
+import sys
 
-class manageDIR:
+class Directory:
     def __init__(self, DIR):
         self.DIR = DIR
         self.DAT = f'{DIR}/script.dat'
