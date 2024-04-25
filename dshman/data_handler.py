@@ -15,7 +15,7 @@ class DataHandler(Directory):
                 self.data = pickle.load(f)
             
     def sort_data(self):
-        self.data = dict(sorted(self.DATA.items()))
+        self.data = dict(sorted(self.data.items()))
 
     def write_data(self):
         self.sort_data()
@@ -72,7 +72,7 @@ class DataHandler(Directory):
                 sys.exit(0)
 
             if not new_name is NAME:
-                self.data[new_name] = self.DATA[NAME]
+                self.data[new_name] = self.data[NAME]
                 del self.data[NAME]
 
         else:
