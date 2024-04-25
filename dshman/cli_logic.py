@@ -86,55 +86,55 @@ class Commands(CLIArgs):
     """If statements
     Basic if statements to return True/False.
     """
-    def if_list(self):
+    def list(self):
         if self.args.list:
             return True
         elif self.args.command:
             if self.args.command[0].lower() == 'list':
                 return True
 
-    def if_help(self):
+    def help(self):
         if self.args.command:
             if self.args.command[0] == 'help':
                 return True
 
-    def if_add(self):
+    def add(self):
         if self.args.add:
             return True
 
-    def if_delete(self):
+    def delete(self):
         if self.args.delete:
             return True
         elif self.args.command:
             if self.args.command[0].lower() == 'delete':
                 return True
 
-    def if_launch(self):
+    def launch(self):
         if self.args.command:
             if self.args.command[0].lower() == 'launch':
                 return True
 
-    def if_enable(self):
+    def enable(self):
         if len(self.args.command) == 2:
             if self.args.command[0].lower() == 'enable':
                 return True
 
-    def if_disable(self):
+    def disable(self):
         if len(self.args.command) == 2:
             if self.args.command[0].lower() == 'disable':
                 return True
 
-    def if_enable_all(self):
+    def enable_all(self):
         if len(self.args.command) == 1:
             if self.args.command[0].lower() == 'enable':
                 return True
 
-    def if_disable_all(self):
+    def disable_all(self):
         if len(self.args.command) == 1:
             if self.args.command[0].lower() == 'disable':
                 return True
 
-    def if_change(self):
+    def change(self):
         if self.args.change:
             return True
 

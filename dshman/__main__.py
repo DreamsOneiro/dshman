@@ -13,51 +13,51 @@ def main():
     data.main()
     command.main_check()
     
-    if command.if_list():
+    if command.list():
         data.load_data()
         format.print_title()
         if data.data:
             for script in data.data:
                 format.print_item(data.data[script])
 
-    elif command.if_help():
+    elif command.help():
         command.parser.print_help()
 
-    elif command.if_add():
+    elif command.add():
         new_script = Scripts(*command.script_add())
         data.load_data()
         data.add_data(new_script.name, new_script)
         data.write_data()
 
-    elif command.if_delete():
+    elif command.delete():
         data.load_data()
         data.delete_data(command.script_delete())
         data.write_data()
 
-    elif command.if_launch():
+    elif command.launch():
         data.load_data()
         for script in data.data:
             data.data[script].launch()
 
-    elif command.if_enable():
+    elif command.enable():
         data.load_data()
         data.data[command.script_enable_disable()].status = 'enabled'
         data.write_data()
 
-    elif command.if_disable():
+    elif command.disable():
         data.load_data()
         data.data[command.script_enable_disable()].status = 'disabled'
         data.write_data()
 
-    elif command.if_change():
+    elif command.change():
         data.load_data()
         data.change_data(command.script_change())
         data.write_data()
 
-    elif command.if_enable_all():
+    elif command.enable_all():
         data.create_desk()
         
-    elif command.if_disable_all():
+    elif command.disable_all():
         data.remove_desk()
 
     else:
