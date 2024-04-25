@@ -1,4 +1,5 @@
-import os, subprocess
+import os
+import subprocess
 
 class Scripts:
     def __init__(self, fileDIR, name, info, status):
