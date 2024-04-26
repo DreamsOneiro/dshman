@@ -17,8 +17,8 @@ def main():
         data.load()
         format.print_title()
         if data.data:
-            for script in data.data:
-                format.print_item(data.data[script])
+            for script in data.data.values():
+                format.print_item(script)
 
     elif command.help():
         command.parser.print_help()
@@ -36,8 +36,8 @@ def main():
 
     elif command.launch():
         data.load()
-        for script in data.data:
-            data.data[script].launch()
+        for script in data.data.values():
+            script.launch()
 
     elif command.enable():
         data.load()
