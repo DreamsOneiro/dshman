@@ -2,6 +2,7 @@ import sys
 import os
 from cli_argparse import CLIArgs
 
+
 class Commands(CLIArgs):
     def debug(self):
         print(self.args)
@@ -13,33 +14,36 @@ class Commands(CLIArgs):
     """Main checks
     Prevent user input error.
     """
+
     def check_non_command(self):
-        if (self.args.launch 
-                or self.args.enable 
+        if (self.args.launch
+                or self.args.enable
                 or self.args.disable):
             # Prevent user from using some of the command as flag
-            self.printError('[launch], [enable], and [disable] will not work as flag, please use [Command]')
+            self.printError('[launch], [enable], and [disable] will not work\
+                            as flag, please use [Command]')
 
     def check_flag_command(self):
         if self.args.command:
-            if (self.args.add 
-                    or self.args.name 
-                    or self.args.info 
+            if (self.args.add
+                    or self.args.name
+                    or self.args.info
                     or self.args.list):
                 # Prevent user from using both command and flag
-                self.printError('Does not support use of both [Command] and [-flag], please check your input')
+                self.printError('Does not support use of both [Command] and\
+                                [-flag], please check your input')
 
     def check_flag(self):
-        flags = (bool(self.args.list), 
-                 bool(self.args.delete), 
+        flags = (bool(self.args.list),
+                 bool(self.args.delete),
                  bool(self.args.add or self.args.name or self.args.info))
         if not sum(flags) <= 1:
             # A very specific Xor check
             self.printError('Too many flags, please check your input')
 
     def check_add_logic(self):
-        if (bool(self.args.add) ^ 
-            bool(self.args.name)):
+        if (bool(self.args.add) ^
+                bool(self.args.name)):
             # Xor check to make sure script is given a name
             self.printError('Both [-a] and [-n] are needed to add new script')
 
@@ -53,23 +57,24 @@ class Commands(CLIArgs):
 
             elif len(self.args.command) == 2:
                 commands = ('delete',
-                            'enable', 
+                            'enable',
                             'disable')
                 if not self.args.command[0].lower() in commands:
-                # Return error if the command is not in the tuple above
+                    # Return error if the command is not in the tuple above
                     command_error()
 
             elif len(self.args.command) == 1:
                 if self.args.command[0].lower() == 'delete':
-                    self.printError('Unkown command, please check your input. Do you mean "[delete] [name]"')
+                    self.printError('Unkown command, please check your input.\
+                        Do you mean "[delete] [name]"')
 
     def check_no_args(self):
-        if not (self.args.command 
-                or self.args.list 
-                or self.args.add 
-                or self.args.name 
-                or self.args.info 
-                or self.args.delete 
+        if not (self.args.command
+                or self.args.list
+                or self.args.add
+                or self.args.name
+                or self.args.info
+                or self.args.delete
                 or self.args.change):
             # Print welcome script when no input detected
             print('Welcome to Dreams Script Manager (v4.2)')
@@ -86,6 +91,7 @@ class Commands(CLIArgs):
     """If statements
     Basic if statements to return True/False.
     """
+
     def list(self):
         if self.args.list:
             return True
@@ -141,15 +147,17 @@ class Commands(CLIArgs):
     """Other functions
     Deliver data for dictionary modification
     """
+
     def script_add(self):
         self.args.add = os.path.abspath(self.args.add)
         if os.path.isfile(self.args.add):
-            return  (self.args.add, 
-                     self.args.name, 
-                     self.args.info, 
-                     "enabled")
+            return (self.args.add,
+                    self.args.name,
+                    self.args.info,
+                    "enabled")
         else:
-            self.printError(f'File not found, please check directory "{self.args.add}"')
+            self.printError(f'File not found, please check directory\
+                            "{self.args.add}"')
 
     def script_delete(self):
         if self.args.delete:
@@ -168,7 +176,8 @@ class Commands(CLIArgs):
     def unknown_command(self):
         self.printError('Unknown command, please check your input')
 
+
 if __name__ == '__main__':
-    command = commands()
+    command = Commands()
     command.debug()
     command.main_check()

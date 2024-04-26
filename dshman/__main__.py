@@ -5,6 +5,7 @@ from cli_logic import Commands
 from data_handler import DataHandler
 from table_format import TableFormat
 
+
 def main():
     data = DataHandler(f'{os.path.expanduser("~")}/.dshman')
     command = Commands()
@@ -12,7 +13,7 @@ def main():
 
     data.main()
     command.main_check()
-    
+
     if command.list():
         data.load()
         format.print_title()
@@ -58,12 +59,13 @@ def main():
 
     elif command.enable_all():
         data.create_desk()
-        
+
     elif command.disable_all():
         data.remove_desk()
 
     else:
         command.unknown_command()
+
 
 if __name__ == '__main__':
     main()

@@ -3,6 +3,7 @@ import os
 import sys
 from directory import Directory
 
+
 class DataHandler(Directory):
     def __init__(self, DIR):
         Directory.__init__(self, DIR)
@@ -13,7 +14,7 @@ class DataHandler(Directory):
             # Check to make sure file is not empty
             with open(self.datfile, 'rb') as f:
                 self.data = pickle.load(f)
-            
+
     def sort(self):
         self.data = dict(sorted(self.data.items()))
 
@@ -24,7 +25,8 @@ class DataHandler(Directory):
 
     def add(self, KEY, VALUE):
         if KEY in self.data:
-            print(f'\033[1;31mERROR: Script name: "{KEY}" alreay exist in list\033[0m')
+            print(f'\033[1;31mERROR: Script name: "{KEY}"\
+                    alreay exist in list\033[0m')
             sys.exit(1)
         self.data[KEY] = VALUE
 
@@ -50,7 +52,8 @@ class DataHandler(Directory):
 
             while True:
                 try:
-                    new_name = input(f'Please input new name [Default = "{self.data[NAME].name}"]: ')
+                    new_name = input(f'Please input new name [Default] = \
+                                        "{self.data[NAME].name}"]: ')
                     if new_name in self.data:
                         print('Name already exist')
                     elif new_name == '':
@@ -71,13 +74,14 @@ class DataHandler(Directory):
                 print('\n')
                 sys.exit(0)
 
-            if not new_name is NAME:
+            if new_name is not NAME:
                 self.data[new_name] = self.data[NAME]
                 del self.data[NAME]
 
         else:
             print(f'No script with name: "{NAME}"')
             sys.exit(0)
+
 
 if __name__ == '__main__':
     test = DataHandler('/home/dreams/Programming/dshman/test')
